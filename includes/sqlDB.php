@@ -1673,9 +1673,7 @@ class sqlDB {
                 $query = "UPDATE TestSettings
                           SET
                               name = '".$data[0]."',
-                              description = '".$data[1]."',
-                              negative = '$negative',
-                              editable = '$editable'
+                              description = '".$data[1]."'
                           WHERE
                               idTestSetting = '$idTestSetting'";
                 $this->execQuery($query);
