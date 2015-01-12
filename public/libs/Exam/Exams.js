@@ -27,21 +27,26 @@ var etci = {
     statusID : 11
 };
 
-statuses = {"w" : {"imageTitle"  : ttWaiting,
+statuses = {"w" : {"imageSRC"    : "Waiting",
+                   "imageTitle"  : ttWaiting,
                    "actionTitle" : ttStart,
                    "action"      : "start",
                    "confirm"     : ttCStartExam,
                    "newStatus"   : "s",
                    "message"     : ttMExamStarted},
-            "s" : {"imageTitle"  : ttStarted,
+            "s" : {"imageSRC"    : "Started",
+                   "imageTitle"  : ttStarted,
                    "actionTitle" : ttStop,
                    "action"      : "stop",
+                   "actionSRC"   : "Stop",
                    "confirm"     : ttCStopExam,
                    "newStatus"   : "e",
                    "message"     : ttMExamStopped},
-            "e" : {"imageTitle"  : ttStopped,
+            "e" : {"imageSRC"    : "Stopped",
+                   "imageTitle"  : ttStopped,
                    "actionTitle" : ttStart,
                    "action"      : "start",
+                   "actionSRC"   : "Start",
                    "confirm"     : ttCStartExam,
                    "newStatus"   : "s",
                    "message"     : ttMExamStarted}
@@ -276,9 +281,9 @@ function changeExamStatus(askConfirmationAndExamToChange){
                     examsTable.cell(examsTable.row(examRowEdit).index(), etci.status).data(
                         '<img alt="'+statuses[newStatus]["imageTitle"]+'"' +
                         '     title="'+statuses[newStatus]["imageTitle"]+'"' +
-                        '     src="'+imageDir+statuses[newStatus]["imageTitle"]+'.png">');
+                        '     src="'+imageDir+statuses[newStatus]["imageSRC"]+'.png">');
                     examsTable.cell(examsTable.row(examRowEdit).index(), etci.statusID).data(newStatus);
-                    examRowEdit.find("span.manageButton.action img").attr("src", imageDir+statuses[newStatus]["actionTitle"]+".png")
+                    examRowEdit.find("span.manageButton.action img").attr("src", imageDir+statuses[newStatus]["actionSRC"]+".png")
                                                                     .attr("title", statuses[newStatus]["actionTitle"]);
                     showSuccessMessage(status["message"]);
                 }else{
