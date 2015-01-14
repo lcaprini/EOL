@@ -2034,6 +2034,7 @@ class sqlDB {
             }else{
                 $query .= "idTest = '$idTest'";
             }
+            $log->append($query);
             $this->execQuery($query);
         }catch(Exception $ex){
             $ack =false;

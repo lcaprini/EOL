@@ -520,26 +520,58 @@ class ExamController extends Controller{
 //        $log->append('******************************** Adjust Questions Assignaments **********************************');
 
         foreach(range(1, getMaxQuestionDifficulty()) as $difficulty){
+//            $log->append("Check difficulty: ".$difficulty);
             $gap = $assignedForDifficulties[$difficulty] - $questionsD[$difficulty]['random'];
+//            $log->append("Gap = ".$gap);
 //            $log->append('$gap'."$difficulty : $gap");
             if($gap > 0){                               // Too many random questions assigned
                                                         // for this difficulty, so remove some
                 arsort($approxMatrix[$difficulty]);
+//                $log->append("Remove question");
                 foreach($approxMatrix[$difficulty] as $idTopic => $approximation){
                     if($gap > 0){
+//                        $log->append("Check topic ".$idTopic." with approximation = ".$approximation);
                         if($assignedForTopics[$idTopic] > $questionsT[$idTopic]['random']){
+//                            $log->append("Remove from topic ".$idTopic);
                             $distributionMatrix[$difficulty][$idTopic]--;
                             $assignedForTopics[$idTopic]--;
                             $gap--;
                         }
                     }else break;
                 }
+                if($gap > 0){
+                    // If gap > 0 retry foreach without assignedForTopics control
+                    foreach($approxMatrix[$difficulty] as $idTopic => $approximation){
+                        if($gap > 0){
+//                            $log->append("Check topic ".$idTopic." with approximation = ".$approximation);
+//                            $log->append("Remove from topic ".$idTopic);
+                            $distributionMatrix[$difficulty][$idTopic]--;
+                            $assignedForTopics[$idTopic]--;
+                            $gap--;
+                        }else break;
+                    }
+                }
             }else if($gap < 0){                         // Too few random questions assigned
                                                         // for this difficulty, so add more
                 asort($approxMatrix[$difficulty]);
+//                $log->append("Add questions");
                 foreach($approxMatrix[$difficulty] as $idTopic => $approximation){
                     if($gap < 0){
+//                        $log->append("Check topic ".$idTopic." with approximation = ".$approximation);
                         if($assignedForTopics[$idTopic] < $questionsT[$idTopic]['random']){
+//                            $log->append("Add to topic ".$idTopic);
+                            $distributionMatrix[$difficulty][$idTopic]++;
+                            $assignedForTopics[$idTopic]++;
+                            $gap++;
+                        }
+                    }
+                }
+                if($gap < 0){
+                    // If gap < 0 retry foreach without assignedForTopics control
+                    foreach($approxMatrix[$difficulty] as $idTopic => $approximation){
+                        if($gap < 0){
+//                            $log->append("Check topic ".$idTopic." with approximation = ".$approximation);
+//                            $log->append("Add to topic ".$idTopic);
                             $distributionMatrix[$difficulty][$idTopic]++;
                             $assignedForTopics[$idTopic]++;
                             $gap++;
@@ -549,7 +581,7 @@ class ExamController extends Controller{
             }
         }
 
-//        $log->append('distributionMatrix : '.var_export($distributionMatrix, true));
+        $log->append('distributionMatrix : '.var_export($distributionMatrix, true));
 
         return $distributionMatrix;
     }
@@ -639,7 +671,8 @@ class ExamController extends Controller{
            (isset($_POST['bonus'])) && (isset($_POST['scoreFinal']))){
 
             $db = new sqlDB();
-            if(($db->qTestDetails($_POST['idTest']) && ($testInfo = $db->nextRowAssoc()))){
+            if(($db->qTestDetails(null, $_POST['idTest']) && ($testInfo = $db->nextRowAssoc()))){
+                $log->append(var_export($testInfo, true));
                 $allowNegative = ($testInfo['negative'] == 0)? false : true;
                 if($db->qArchiveTest($_POST['idTest'], json_decode(stripslashes($_POST['correctScores']), true),
                                      $_POST['scoreTest'], $_POST['bonus'], $_POST['scoreFinal'], $testInfo['scale'], $allowNegative)){
