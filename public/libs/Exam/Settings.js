@@ -9,9 +9,8 @@
 var settingsEditing = false;
 var settingsRowEdit = null;
 var settingsNew = false;
-
 var questionsTable = null;
-var questionsSelected = null;
+var distributionTable = null;
 var qtci = {
     checkbox : 0,
     text : 1,
@@ -35,17 +34,18 @@ $(function(){
 
     questionsTable = $("#questionsTable").DataTable({
                                 scrollY:        120,
+                                //scrollX:        true,
                                 scrollCollapse: false,
                                 jQueryUI:       true,
                                 paging:         false,
                                 order: [ qtci.text, "asc" ],
                                 columns : [
                                     { className: "qCheckbox", searchable : false, visible : false, "orderDataType": "dom-checkbox", width : "10px" },
-                                    { className: "qText", width : "570px", mRender: function(data){return truncate(data, "600px")} },
-                                    { className: "qLanguages", searchable : false, type: "alt-string", width : "60px" },
-                                    { className: "qTopic", width : "80px" },
-                                    { className: "qType", width : "100px" },
-                                    { className: "qDifficulty", width : "50px"},
+                                    { className: "qText", mRender: function(data){return truncate(data, "450px")} },
+                                    { className: "qLanguages", searchable : false, type: "alt-string", width : "5%" },
+                                    { className: "qTopic"},
+                                    { className: "qType"},
+                                    { className: "qDifficulty"},
                                     { className: "qQuestionID", visible : false, searchable : false },
                                     { className: "qTopicID", visible : false },
                                     { className: "qTypeID", visible : false},
@@ -135,7 +135,6 @@ function showSettingsInfo(selectedSettingsAndConfirmation){
                             questionsTable.cell(index, qtci.selected).data("X");
                         else
                             questionsTable.cell(index, qtci.selected).data("");
-
                     });
                     questionsTable.rows().eq(0).each(function(value, index){
                         checkbox = questionsTable.cell(index, qtci.checkbox).nodes().to$().find("input");
@@ -144,11 +143,11 @@ function showSettingsInfo(selectedSettingsAndConfirmation){
                     $("#settingsInfo .boxContent").slideDown({
                         duration : 500,
                         complete : function(){
-                            questionsTable.columns(qtci.selected)
-                                .search("X")
-                                .draw();
-                                }
-                            });
+                                        questionsTable.columns(qtci.selected).search("X").draw();
+                                        updateQuestionsSummaries();
+                                        setTimeout(function(){distributionTable.draw();}, 1000);
+                                    }
+                    });
                 }
             },
             error : function (request, status, error) {
@@ -169,34 +168,12 @@ function editSettingsInfo(){
         $(this).children("span").toggleClass("clicked");
         $(this).next().children("ol").slideToggle(200);
     });
-    $(".settingsTopic").each(function(){
-        $(this).removeClass("hidden");
-        makeWritable($(this).find("td.settingsTopicQuestions input"));
-    });
-    makeWritable($("td.settingsDifficultyQuestions input"));
+    makeWritable($("#questionsDistribution tr input"));
     $("#viewPanel").hide();
     $("#editPanel").show();
     questionsTable.column(qtci.checkbox).visible(true);
-    questionsTable.columns(qtci.selected)
-        .search("");
-    questionsTable.order([[ qtci.checkbox, "desc" ], [ qtci.text, "asc" ]])
-        .draw();
-    var topicID;
-    var questionsNum;
-    $(".settingsTopic").each(function(){
-        topicID = $(this).attr("value");
-        questionsNum = parseInt($(this).find(".settingsTopicQuestions input").val());
-        topicsQuestions[topicID] = questionsNum;
-    });
-    var difficultyLevel;
-    $(".settingsDifficulty").each(function(){
-        difficultyLevel = $(this).find(".settingsDifficultyQuestions input").attr("id");
-        questionsNum = parseInt($(this).find(".settingsDifficultyQuestions input").val());
-        difficultiesQuestions[difficultyLevel] = questionsNum;
-    });
-    $("#settingsQuestions").css("background", "rgb(12, 156, 12)").css("color", "#ffffff");
-    $("#topicQuestionsSummary, #difficultyQuestionsSummary").show();
-    updateQuestionsSummaries();
+    questionsTable.columns(qtci.selected).search("");
+    questionsTable.order([[ qtci.checkbox, "desc" ], [ qtci.text, "asc" ]]).draw();
     settingsEditing = true;
 }
 
@@ -323,6 +300,8 @@ function newSettings(askConfirmation){
                                               .draw();
                                 questionsTable.column(qtci.checkbox).visible(true);
                                 questionsTable.$(".qCheckbox input").prop("checked", false);
+                                updateQuestionsSummaries();
+                                setTimeout(function(){distributionTable.draw();}, 1000);
                             }
                         });
                     }

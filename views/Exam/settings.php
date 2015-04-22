@@ -48,11 +48,13 @@ global $user, $tt, $config;
     <form id="testSettingsInfoEditForm" onsubmit="return false;">
         <div id="testSettingsInfo"></div>
 
-        <div id="testSettingsQuestion" class="bSpace">
+        <div id="testSettingsQuestion">
             <?php
             if(($db->qSelect('Topics', 'fkSubject', $_SESSION['idSubject'], 'name')) && ($topics = $db->getResultAssoc('idTopic'))){
 
-                if(count($topics) > 0){ ?>
+                if(count($topics) > 0){?>
+                    <h2 class="tSpace center"><?= ttMandatoryQuestions ?></h2>
+
                     <table id="questionsTable" class="stripe hover order-column">
                         <thead>
                             <tr>
@@ -104,7 +106,7 @@ global $user, $tt, $config;
                                             $idType = $question['type'];
                                             $type = constant('ttQT'.$question['type']);
                                             $difficulty = constant('ttD'.$question['difficulty']);
-                                            $difficultyID = 'settingsD'.$question['difficulty'];
+                                            $difficultyID = $question['difficulty'];
                                             $checkbox = '<input type="checkbox" value="'.$idQuestion.'" name="question" onchange="selectQuestion(this);"/>';
                                             if($question['fkLanguage'] == $subjectInfo['fkLanguage'])
                                                 $text = $question['shortText'];
@@ -131,7 +133,7 @@ global $user, $tt, $config;
                                             $idType = $question['type'];
                                             $type = constant('ttQT'.$question['type']);
                                             $difficulty = constant('ttD'.$question['difficulty']);
-                                            $difficultyID = 'settingsD'.$question['difficulty'];
+                                            $difficultyID = $question['difficulty'];
                                             $checkbox = '<input type="checkbox" value="'.$idQuestion.'" name="question" onchange="selectQuestion(this);"/>';
                                             if($question['fkLanguage'] == $subjectInfo['fkLanguage'])
                                                 $text = $question['shortText'];
@@ -189,7 +191,7 @@ global $user, $tt, $config;
                                         <?php
                                         $index = 1;
                                         while($index <= getMaxQuestionDifficulty()){
-                                            echo '<option value="settingsD'.$index.'">'.constant('ttD'.$index).'</option>';
+                                            echo '<option value="'.$index.'">'.constant('ttD'.$index).'</option>';
                                             $index++;
                                         }
                                         ?>
@@ -210,16 +212,16 @@ global $user, $tt, $config;
         </div>
         <div class="clearer"></div>
         <div id="viewPanel">
-            <a class="normal button right rSpace" id="editSettingsInfo" onclick="editSettingsInfo()"><?= ttEdit ?></a>
+            <a class="normal button right rSpace bSpace" id="editSettingsInfo" onclick="editSettingsInfo()"><?= ttEdit ?></a>
         </div>
         <div id="editPanel" class="hidden">
             <a class="ok button right bSpace tSpace rSpace" id="saveSettingsInfo" onclick="saveSettingsInfo(new Array(true));"><?= ttSave ?></a>
             <a class="red button right bSpace tSpace rSpace" id="deleteSettings" onclick="deleteSettings(new Array(true));"><?= ttDelete ?></a>
-            <a class="normal button left bSpace tSpace rSpace" id="cancel" onclick="cancelEdit(new Array(settingsEditing));"><?= ttCancel ?></a>
+            <a class="normal button left bSpace tSpace lSpace" id="cancel" onclick="cancelEdit(new Array(settingsEditing));"><?= ttCancel ?></a>
         </div>
         <div id="newPanel" class="hidden">
             <a class="ok button right bSpace tSpace rSpace" id="createNewSettings" onclick="createNewSettings();"><?= ttCreate ?></a>
-            <a class="normal button left bSpace tSpace rSpace" id="cancelNew" onclick="cancelNew(new Array(true));"><?= ttCancel ?></a>
+            <a class="normal button left bSpace tSpace lSpace" id="cancelNew" onclick="cancelNew(new Array(true));"><?= ttCancel ?></a>
         </div>
         <div class="clearer"></div>
     </form>

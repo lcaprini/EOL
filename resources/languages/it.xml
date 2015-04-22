@@ -214,6 +214,7 @@
     <text id="ttMainLanguage">Lingua principale</text>
     <text id="ttManage">Gestisci</text>
     <text id="ttMandatory">Fisse</text>
+    <text id="ttMandatoryQuestions">Domande fisse</text>
     <text id="ttManual">Manuale</text>
     <text id="ttMinutes">minuti</text>
     <text id="ttMyExams">I miei esami</text>
@@ -293,6 +294,7 @@
     <text id="ttProfile">Profilo</text>
     <!-- ======================== Q ======================== -->
     <text id="ttQuestion">Domanda</text>
+    <text id="ttQuestionsDistribution">Distribuzione delle domande</text>
     <text id="ttQuestionPreview">Anteprima della domanda</text>
     <text id="ttQuestions">Domande</text>
     <text id="ttQEc">Calcolatrice</text>
@@ -371,6 +373,7 @@
     <text id="ttTopics">Argomenti</text>
     <text id="ttTopicsAndQuestions">Argomenti e Domande</text>
     <text id="ttTopicsQuestions">Domande per argomenti</text>
+    <text id="ttTotals">Totali</text>
     <text id="ttTranslations">Traduzioni</text>
     <text id="ttTrue">Vero</text>
     <text id="ttType">Tipo</text>

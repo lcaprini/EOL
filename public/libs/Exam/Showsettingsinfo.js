@@ -6,8 +6,9 @@
  * Desc: Shows test setting's info and allows to edit its informations
  */
 
-var topicsQuestions = new Array();
-var difficultiesQuestions = new Array();
+/*
+ * questionsDistribution[idTopic][idDifficulty] = [#random , #mandatory]
+ */
 
 $(function(){
 
@@ -36,42 +37,22 @@ $(function(){
      */
     enableCharsCounter("settingsName", "settingsName");
     enableCharsCounter("settingsDesc", "settingsDesc");
+
+    distributionTable = $("#questionsDistribution").DataTable({
+                                                        scrollY:        163,
+                                                        scrollCollapse: false,
+                                                        searching:      false,
+                                                        ordering:       false,
+                                                        paging:         false,
+                                                        sDom:           "t",
+                                                        columns : [
+                                                            { className: "dTopic"},
+                                                            { className: "dEasy", width : "13%" },
+                                                            { className: "dMedium", width : "13%" },
+                                                            { className: "dHard", width : "13%" },
+                                                            { className: "dTot", width : "14%" }
+                                                        ]})
 });
-
-/**
- *  @name   changeTopicQuestions
- *  @descr  Changes questions number for requested topic (with integer control)
- *  @param  topicQuestions          DOM Element         Changed topic's input field
- */
-function changeTopicQuestions(topicQuestions){
-    if(settingsEditing){
-        var topicID = $(topicQuestions).closest("tr").attr("value");
-        var questionsNum = parseInt($(topicQuestions).val());
-        if((isNaN(questionsNum)) || (questionsNum < 0))
-            $(topicQuestions).val(topicsQuestions[topicID]);
-        else
-            topicsQuestions[topicID] = questionsNum;
-        updateQuestionsSummaries();
-    }
-}
-
-/**
- *  @name   changeDifficultyQuestions
- *  @descr  Changes questions number for requested difficulty level (with integer control)
- *  @param  difficultyQuestions         DOM Element         Changed difficulty's input field
- */
-function changeDifficultyQuestions(difficultyQuestions){
-    if(settingsEditing){
-        var difficultyLevel = $(difficultyQuestions).attr("id");
-        var questionsNum = parseInt($(difficultyQuestions).val());
-        if((isNaN(questionsNum)) || (questionsNum < 0))
-            $(difficultyQuestions).val(difficultiesQuestions[difficultyLevel]);
-        else
-            difficultiesQuestions[difficultyLevel] = questionsNum;
-        updateQuestionsSummaries();
-    }
-
-}
 
 /**
  *  @name   selectQuestion
@@ -84,12 +65,14 @@ function selectQuestion(selectedQuestion){
         var topicID = selectedQuestionRow[qtci.topicID];
         var difficultyLevel = selectedQuestionRow[qtci.difficultyID];
 
+        console.log("topicID", topicID);
+        console.log("difficultyLevel", difficultyLevel);
+        console.log(questionsDistribution[topicID][difficultyLevel]);
+
         if($(selectedQuestion).is(":checked")){
-            $("#topicQuestionsMandatory"+topicID).text(parseInt($("#topicQuestionsMandatory"+topicID).text()) + 1);
-            $("#"+difficultyLevel+"Mandatory").text(parseInt($("#"+difficultyLevel+"Mandatory").text()) + 1);
+            questionsDistribution[topicID][difficultyLevel][1]++;
         }else{
-            $("#topicQuestionsMandatory"+topicID).text(parseInt($("#topicQuestionsMandatory"+topicID).text()) - 1);
-            $("#"+difficultyLevel+"Mandatory").text(parseInt($("#"+difficultyLevel+"Mandatory").text()) - 1);
+            questionsDistribution[topicID][difficultyLevel][1]--;
         }
         updateQuestionsSummaries();
     }
@@ -100,27 +83,49 @@ function selectQuestion(selectedQuestion){
  *  @descr  Calculates new questions summaries for topics and difficulties sections and updates summary boxes and question field
  */
 function updateQuestionsSummaries(){
-    topicQuestionSummary = 0;
-    difficultyQuestionSummary = 0;
 
-    $(".settingsTopic").each(function(){
-        topicQuestionSummary += parseInt($(this).find(".settingsTopicQuestions input").val());
-        topicQuestionSummary += parseInt($(this).find(".settingsTopicQuestionsMandatory span").text());
-    });
-    $(".settingsDifficulty").each(function(){
-        difficultyQuestionSummary += parseInt($(this).find(".settingsDifficultyQuestions input").val());
-        difficultyQuestionSummary += parseInt($(this).find(".settingsDifficultyQuestionsMandatory span").text());
+    var difficultiesRandom = Array.apply(null, new Array(maxDifficulty+1)).map(Number.prototype.valueOf,0);
+    var difficultiesMandatory = Array.apply(null, new Array(maxDifficulty+1)).map(Number.prototype.valueOf,0);
+
+    $.each(questionsDistribution, function(topicID, questionsPerDifficulty){
+        var topicRandomTemp = 0;
+        var topicMandatoryTemp = 0;
+        $.each(questionsPerDifficulty, function(difficultyID, questions){
+            difficultiesRandom[difficultyID] += parseInt(questions[0]);
+            difficultiesMandatory[difficultyID] += parseInt(questions[1]);
+            topicRandomTemp += parseInt(questions[0]);
+            topicMandatoryTemp += parseInt(questions[1]);
+            if(questions[1] > 0)
+                $("td.topic"+topicID+".difficulty"+difficultyID+" .questionsMandatory").text("+"+questions[1]);
+            else
+                $("td.topic"+topicID+".difficulty"+difficultyID+" .questionsMandatory").html("&nbsp;&nbsp;&nbsp;");
+        });
+
+        if(topicMandatoryTemp > 0){
+            $("#qTopic"+topicID+"_tot .questionsRandomTot").text(topicRandomTemp);
+            $("#qTopic"+topicID+"_tot .questionsMandatoryTot").text("+"+topicMandatoryTemp+"=");
+        }
+        $("#qTopic"+topicID+"_tot .questionsTot").text(topicRandomTemp+topicMandatoryTemp);
     });
 
-    $("#topicQuestionsSummary span").text(topicQuestionSummary);
-    $("#difficultyQuestionsSummary span").text(difficultyQuestionSummary);
-    if(topicQuestionSummary == difficultyQuestionSummary){
-        $("#topicQuestionsSummary, #difficultyQuestionsSummary").removeClass("backError").addClass("backSuccess");
-        $("#settingsQuestions").css("background", "rgb(12, 156, 12)");
-        $("#settingsQuestions").val(topicQuestionSummary);
-    }else{
-        $("#topicQuestionsSummary, #difficultyQuestionsSummary").removeClass("backSuccess").addClass("backError");
-        $("#settingsQuestions").css("background", "rgb(223, 58, 58)");
-        $("#settingsQuestions").val("xXx");
+    // Update difficulties totals
+    var randomTot = 0;
+    var mandatoryTot = 0;
+    for(var difficultyID = 1; difficultyID <= maxDifficulty; difficultyID++){
+        randomTot += difficultiesRandom[difficultyID];
+        mandatoryTot += difficultiesMandatory[difficultyID];
+
+        if(difficultiesMandatory[difficultyID] > 0){
+            $("#qDifficulty"+difficultyID+"_tot .questionsRandomTot").text(difficultiesRandom[difficultyID]);
+            $("#qDifficulty"+difficultyID+"_tot .questionsMandatoryTot").text("+"+difficultiesMandatory[difficultyID]+"=");
+        }
+        $("#qDifficulty"+difficultyID+"_tot .questionsTot").text(difficultiesRandom[difficultyID]+difficultiesMandatory[difficultyID]);
     }
+
+    if(mandatoryTot > 0){
+        $("#questionsTot .questionsRandomTot").text(randomTot);
+        $("#questionsTot .questionsMandatoryTot").text("+"+mandatoryTot+"=");
+    }
+    $("#questionsTot .questionsTot").text(randomTot+mandatoryTot);
+
 }

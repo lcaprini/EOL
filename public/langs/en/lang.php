@@ -188,6 +188,7 @@ define('ttMailNewTeacher' , "Welcome to _SYSTEMNAME_.\nTo activate your accunt p
 define('ttMainLanguage' , "Main Language");
 define('ttManage' , "Manage");
 define('ttMandatory' , "Mandatory");
+define('ttMandatoryQuestions' , "Mandatory Questions");
 define('ttManual' , "Manual");
 define('ttMinutes' , "minutes");
 define('ttMyExams' , "My Exams");
@@ -262,6 +263,7 @@ define('ttPasswordLost' , "Password Lost?");
 define('ttPort' , "Port");
 define('ttProfile' , "Profile");
 define('ttQuestion' , "Question");
+define('ttQuestionsDistribution' , "Questions Distribution");
 define('ttQuestionPreview' , "Question Preview");
 define('ttQuestions' , "Questions");
 define('ttQEc' , "Calculator");

@@ -214,6 +214,7 @@
     <text id="ttMainLanguage">Main Language</text>
     <text id="ttManage">Manage</text>
     <text id="ttMandatory">Mandatory</text>
+    <text id="ttMandatoryQuestions">Mandatory Questions</text>
     <text id="ttManual">Manual</text>
     <text id="ttMinutes">minutes</text>
     <text id="ttMyExams">My Exams</text>
@@ -293,6 +294,7 @@
     <text id="ttProfile">Profile</text>
     <!-- ======================== Q ======================== -->
     <text id="ttQuestion">Question</text>
+    <text id="ttQuestionsDistribution">Questions Distribution</text>
     <text id="ttQuestionPreview">Question Preview</text>
     <text id="ttQuestions">Questions</text>
     <text id="ttQEc">Calculator</text>
@@ -371,6 +373,7 @@
     <text id="ttTopics">Topics</text>
     <text id="ttTopicsAndQuestions">Topics and Questions</text>
     <text id="ttTopicsQuestions">Questions per Topics</text>
+    <text id="ttTotals">Totals</text>
     <text id="ttTranslations">Translations</text>
     <text id="ttTrue">True</text>
     <text id="ttType">Type</text>

@@ -20,11 +20,12 @@ $bonus = '0';
 $negative = '0';
 $editable = '0';
 $duration = '90';
-$questions = '0';
 $desc = '';
 $summaryClass = '';
 
-$topicsForSettings = array();
+$topics = array();
+$questionsForTopic = array();
+$mandatoryQuestions = array();
 
 $db = new sqlDB();
 if($_POST['action'] == 'show'){
@@ -38,12 +39,11 @@ if($_POST['action'] == 'show'){
         $negative = $testSettings['negative'];
         $editable = $testSettings['editable'];
         $duration = $testSettings['duration'];
-        $questions = $testSettings['questions'];
         $desc = $testSettings['description'];
         $summaryClass = 'hidden';
 
-        if($db->qShowTopicsForSetting($_POST['idTestSetting'])){
-            $topicsForSettings = $db->getResultAssoc('idTopic');
+        if($db->qSelect('Topics_TestSettings', 'fkTestSetting', $_POST['idTestSetting'])){
+            $questionsForTopic = $db->getResultAssoc('fkTopic');
         }else{
             die($db->getError());
         }
@@ -157,151 +157,113 @@ if($_POST['action'] == 'show'){
         </div>
         <div class="clearer"></div>
 
-        <label class="tSpace"><?= ttQuestions ?> : </label>
-        <input class="readonly numeric tSpace" type="text" id="settingsQuestions" <?php if($_POST['action'] == 'new') echo 'style="background: rgb(12, 156, 12); color: white;" ';?>value="<?= $questions ?>">
-        <div class="clearer"></div>
-
         <label class="tSpace"><?= ttDescription ?> : </label>
         <textarea class="<?= $editClass ?> tSpace" id="settingsDesc"><?= $desc ?></textarea>
         <a id="settingsDescChars" class="charsCounter hidden"></a>
+        <div class="clearer"></div>
     </div>
 
 <?php
-$questionsTopic = array();
-$questionsDifficulty = array_fill(1, getMaxQuestionDifficulty(), 0);
 
-$script = 'var oldSelectedQuestion = new Array(';
-if($_POST['action'] == 'show'){
-    if(($db->qShowQuestionsForSetting($_POST['idTestSetting'])) && ($db->numResultRows()) > 0){
-        $question = $db->nextRowAssoc();
+/*
+ * questionDistribution[idTopic][idDifficulty] = [#random , #mandatory]
+ */
 
-        $questionsTopic[$question['fkTopic']] = isset($questionsTopic[$question['fkTopic']])? $questionsTopic[$question['fkTopic']]+1 : 1;
-        $questionsDifficulty[$question['difficulty']]++;
+$questionsDistribution = array();
+$difficulties = array(
+    1 => "Easy",
+    2 => "Medium",
+    3 => "Hard"
+);
 
-        $script .= "'".$question['idQuestion']."'";
-        while($question = $db->nextRowAssoc()){
-
-            $questionsTopic[$question['fkTopic']] = isset($questionsTopic[$question['fkTopic']])? $questionsTopic[$question['fkTopic']]+1 : 1;
-            $questionsDifficulty[$question['difficulty']]++;
-
-            $script .= ", '".$question['idQuestion']."'";
+// Read random question for topic and difficulty
+if(($db->qSelect('Topics', 'fkSubject', $_SESSION['idSubject'])) && ($topics = $db->getResultAssoc('idTopic'))){
+    foreach($topics as $topic){
+        foreach(range(1, count($difficulties)) as $indexDifficulty){
+            $random = (isset($questionsForTopic[$topic['idTopic']]))? $questionsForTopic[$topic['idTopic']]['num'.$difficulties[$indexDifficulty]] : 0;
+            $questionsDistribution[$topic['idTopic']][$indexDifficulty] = array($random ,0);
         }
     }
 }
-$script .= ');';
+
+// Read mandatory question for topic and difficulty
+if(($_POST['action'] == 'show') && ($db->qMandatoryQuestions($_POST['idTestSetting'])) && ($db->numResultRows()) > 0){
+    while($mandatory = $db->nextRowAssoc()){
+        array_push($mandatoryQuestions, "".$mandatory['idQuestion']);
+        $questionsDistribution[$mandatory['fkTopic']][$mandatory['difficulty']][1]++;
+    }
+}
+
 ?>
 
-    <div class="columnCenter">
-        <h2 class="center"><?= ttTopicsQuestions ?></h2>
-        <div class="tableScroll">
-            <table id="topicsTable">
+    <div class="columnRight">
+        <h2 class="center"><?= ttQuestionsDistribution ?> (<?= ttRandom ?> + <?= ttMandatory ?>)</h2>
+        <div id="questionsDistributionContainer" class="bSpace">
+            <table id="questionsDistribution" class="cell-border">
                 <thead>
                     <tr>
-                        <th class="settingsTopicName"><?= ttName ?></th>
-                        <th class="settingsTopicQuestions"><?= ttRandom ?></th>
-                        <th></th>
-                        <th class="settingsTopicQuestionsMandatory"><?= ttMandatory ?></th>
+                        <th class="dTopic"><?= ttTopics ?></th>
+                        <?php
+                        foreach(range(1, 3) as $indexDifficulty)
+                            echo "<th class='d".constant('ttD'.$indexDifficulty)." difficultyTitle'>".constant('ttD'.$indexDifficulty)."</th>";
+                        ?>
+                        <th class="dTot"><?= ttTotals ?></th>
                     </tr>
                 </thead>
                 <tbody>
                 <?php
-                $topicQuestionSummary = 0;
-                if($db->qSelect('Topics', 'fkSubject', $_SESSION['idSubject'])){
-                    while($topic = $db->nextRowAssoc()){
-                        $class = 'hidden';
-                        $numQuestionMandatory = 0;
-                        $numQuestionsRandom = 0;
-                        if(isset($topicsForSettings[$topic['idTopic']])){
-                            $class = '';
-                            if(isset($questionsTopic[$topic['idTopic']]))
-                                $numQuestionMandatory = $questionsTopic[$topic['idTopic']];
-                            $numQuestionsRandom = (int)$topicsForSettings[$topic['idTopic']]['numQuestions'] - $numQuestionMandatory;
-                            $topicQuestionSummary += (int)$topicsForSettings[$topic['idTopic']]['numQuestions'];
-                        }elseif($_POST['action'] == 'new'){
-                            $class = '';
-                        }?>
-                        <tr class="settingsTopic <?= $class ?>" value="<?= $topic['idTopic'] ?>">
-                            <td class="settingsTopicName"><?= $topic['name'] ?> : </td>
-                            <td class="settingsTopicQuestions">
-                                <input class="<?= $editClass ?> numeric" type="number" min="0"
-                                       id="topicQuestions<?= $topic['idTopic'] ?>" value="<?= $numQuestionsRandom ?>"
-                                       onchange="changeTopicQuestions(this);" onkeyup="changeTopicQuestions(this);">
-                            </td>
-                            <td>+</td>
-                            <td class="settingsTopicQuestionsMandatory">
-                                <span id="topicQuestionsMandatory<?= $topic['idTopic'] ?>"><?= $numQuestionMandatory ?></span>
-                            </td>
-                          </tr>
-                        <?php
+                foreach($topics as $topic){
+                    echo "<tr><td class='topicName bold'>".$topic['name']."</td>";
+                    foreach(range(1, 3) as $indexDifficulty){
+                    ?>
+                        <td class="topic<?= $topic['idTopic'] ?> difficulty<?= $indexDifficulty ?>">
+                            <input class="questionsRandom <?= $editClass ?> numeric" min="0"
+                                   value="<?= $questionsDistribution[$topic['idTopic']][$indexDifficulty][0] ?>"
+                                   onchange="changeTopicQuestions(<?= $topic['idTopic'] ?>, <?= $indexDifficulty ?>);"
+                                   onkeyup="changeTopicQuestions(<?= $topic['idTopic'] ?>, <?= $indexDifficulty ?>);">
+                            <span class="questionsMandatory">
+                                <?php
+                                if($questionsDistribution[$topic['idTopic']][$indexDifficulty][1] > 0)
+                                    echo "+".$questionsDistribution[$topic['idTopic']][$indexDifficulty][1];
+                                else
+                                    echo "&nbsp;&nbsp;&nbsp;";
+                                ?>
+                            </span>
+                        </td>
+                    <?php
                     }
+                    echo "<td id='qTopic".$topic['idTopic']."_tot'>
+                              <span class='questionsRandomTot'></span><span class='questionsMandatoryTot'></span><span class='questionsTot'></span>
+                          </td>
+                      </tr>";
                 }
                 ?>
                 </tbody>
-            </table>
-        </div>
-        <div class="<?= $summaryClass ?> backSuccess" id="topicQuestionsSummary"><span><?= $topicQuestionSummary ?></span> <?= ttQuestions ?></div>
-    </div>
-
-    <div class="columnRight">
-        <h2 class="center"><?= ttDifficultyQuestions ?></h2>
-        <table id="difficultyTable">
-            <thead>
-                <tr>
-                    <th class="settingsDifficultyName"><?= ttName ?></th>
-                    <th class="settingsDifficultyQuestions"><?= ttRandom ?></th>
-                    <th></th>
-                    <th class="settingsDifficultyQuestionsMandatory"><?= ttMandatory ?></th>
-                </tr>
-            </thead>
-            <tbody>
-
-                <?php
-                $difficultyQuestionSummary = 0;
-                $difficulties = array(
-                    1 => "Easy",
-                    2 => "Medium",
-                    3 => "Hard"
-                );
-                foreach(range(1, 3) as $indexDifficulty){
-
-                    if($_POST['action'] == 'show'){
-                        $numQuestionMandatory = $questionsDifficulty[$indexDifficulty];
-                        $numQuestionsRandom = (int)$testSettings['num'.$difficulties[$indexDifficulty]] - $numQuestionMandatory;
-                        $difficultyQuestionSummary += (int)$testSettings['num'.$difficulties[$indexDifficulty]];
-                    }else{
-                        $numQuestionMandatory = 0;
-                        $numQuestionsRandom = 0;
+                <tfoot>
+                    <tr>
+                        <td></td>
+                    <?php
+                    foreach(range(1, 3) as $indexDifficulty){ ?>
+                        <td id='qDifficulty<?= $indexDifficulty ?>_tot'>
+                            <span class='questionsRandomTot'></span><span class='questionsMandatoryTot'></span><span class='questionsTot'></span>
+                        </td>
+                    <?php
                     }
                     ?>
-
-                    <tr class="settingsDifficulty" value="<?= $indexDifficulty ?>">
-                        <td class="settingsDifficultyLabel"><?= constant('ttD'.$indexDifficulty) ?> : </td>
-                        <td class="settingsDifficultyQuestions">
-                            <input class="<?= $editClass ?> numeric" id="settingsD<?= $indexDifficulty ?>" type="number" min="0"
-                                   value="<?= $numQuestionsRandom ?>"
-                                   onchange="changeDifficultyQuestions(this);" onkeyup="changeDifficultyQuestions(this);">
-                        </td>
-                        <td>+</td>
-                        <td class="settingsDifficultyQuestionsMandatory">
-                            <span id="settingsD<?= $indexDifficulty ?>Mandatory"><?= $questionsDifficulty[$indexDifficulty] ?></span>
+                        <td id="questionsTot">
+                            <span class="questionsRandomTot"></span><span class="questionsMandatoryTot"></span><span class="questionsTot underline"></span>
                         </td>
                     </tr>
-
-                <?php
-                }
-                ?>
-
-            </tbody>
-        </table>
-        <div class="<?= $summaryClass ?> backSuccess" id="difficultyQuestionsSummary"><span><?= $difficultyQuestionSummary ?></span> <?= ttQuestions ?></div>
+                </tfoot>
+            </table>
+        </div>
+        <div class="clearer"></div>
     </div>
-    <div class="clearer"></div>
 
     <script>
-        var topicQuestionSummary = <?= $topicQuestionSummary ?>;
-        var difficultyQuestionSummary = <?= $difficultyQuestionSummary ?>;
-
-    <?= $script ?>
+        var oldSelectedQuestion = new Array('<?php echo implode("','", $mandatoryQuestions) ?>');
+        var questionsDistribution = <?php echo json_encode($questionsDistribution) ?>;
     </script>
 
+    <div class="clearer"></div>
 </form>

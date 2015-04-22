@@ -1576,12 +1576,12 @@ class sqlDB {
 *******************************************************************/
 
     /**
-     * @name    qShowTopicsForSetting
+     * @name    qQuestionsForTopic
      * @param   $idTestSetting      String        Requested Test Settings ID
      * @return  Boolean
      * @descr   Returns true if info was saved successfully, false otherwise
      */
-    public function qShowTopicsForSetting($idTestSetting){
+    public function qQuestionsForTopic($idTestSetting){
         global $log;
         $ack = true;
         $this->result = null;
@@ -1589,12 +1589,16 @@ class sqlDB {
 
         try{
             $data = $this->prepareData(array($idTestSetting));
-            $query= "SELECT idTopic, Topics.name AS topicName, numQuestions
+            $query= "SELECT idTopic, Topics.name AS topicName, numQuestions, Topics_TestSettings.numEasy, Topics_TestSettings.numMedium, Topics_TestSettings.numHard
                      FROM Topics
                          JOIN Topics_TestSettings ON idTopic = fkTopic
                          JOIN TestSettings ON idTestSetting = fkTestSetting
                      WHERE
                          idTestSetting = '".$data[0]."'";
+            $query = "SELECT *
+                      FROM Topics_TestSettings
+                      WHERE
+                          fkTestSetting = '".$data[0]."'";
             $this->execQuery($query);
         }
         catch(Exception $ex){
@@ -1606,12 +1610,12 @@ class sqlDB {
     }
 
     /**
-     * @name    qShowQuestionsForSetting
+     * @name    qMandatoryQuestions
      * @param   $idTestSetting      String        Requested Test Settings ID
      * @return  Boolean
      * @descr   Returns true if info was saved successfully, false otherwise
      */
-    public function qShowQuestionsForSetting($idTestSetting){
+    public function qMandatoryQuestions($idTestSetting){
         global $log;
         $ack = true;
         $this->result = null;
@@ -2034,7 +2038,6 @@ class sqlDB {
             }else{
                 $query .= "idTest = '$idTest'";
             }
-            $log->append($query);
             $this->execQuery($query);
         }catch(Exception $ex){
             $ack =false;

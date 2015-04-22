@@ -50,7 +50,7 @@ body.noscroll {
     font-weight: bold;
     margin-left: 20px;
     font-size: 30px;
-    color: rgb(137, 202, 57);
+    color: rgb(146, 226, 48);
 }
 #welcome {
     font-size   :   12px;
@@ -1489,7 +1489,7 @@ div.ellipsis {
 #settingsList .boxContent {
     height: 300px;
 }
-#testSettingsInfo .infoEdit {
+#testSettingsInfoEditForm {
     background: #e8e8e8;
 }
 #testSettingsInfo .columnLeft{
@@ -1499,7 +1499,7 @@ div.ellipsis {
     border-right                :   1px solid #000000;
     border-top-right-radius     :   10px;
     border-bottom-right-radius  :   10px;
-    height                      :   295px;
+    max-height                  :   320px;
     margin-left                 :   10px;
 }
 #settingsNegative.dropdownInfo dd,
@@ -1527,23 +1527,13 @@ div.ellipsis {
 }
 #testSettingsInfo textarea {
     width: 64%;
-}
-#testSettingsInfo .columnCenter{
-    float                       :   left;
-    width                       :   33%;
-    height                      :   295px;
-    padding-left                :   10px;
-    padding-right               :   10px;
-    position                    :   relative;
-}
-#testSettingsInfo .tableScroll{
-    overflow-y         	        : 	auto;
-    height				              :	  235px;
+    margin-bottom: 15px;
 }
 #testSettingsInfo .columnRight{
-    width                       :   18%;
     float                       :   left;
-    height                      :   295px;
+    width                       :   51%;
+    margin-left                 :   10px;
+    max-height                  :   320px;
     padding-left                :   10px;
     padding-right               :   10px;
     border-left                 :   1px solid #000000;
@@ -1552,46 +1542,44 @@ div.ellipsis {
     background                  :   #b6b6b6;
     position                    :   relative;
 }
-#testSettingsInfo .columnCenter table,
-#testSettingsInfo .columnRight table {
+#testSettingsInfo table#questionsDistribution td{
+    text-align: center;
+}
+#testSettingsInfo table#questionsDistribution td:first-child{
+    text-align: left;
+}
+#testSettingsInfo table#questionsDistribution th:last-child,
+#testSettingsInfo table#questionsDistribution td:last-child{
+    border-right-color: transparent;
+}
+#testSettingsInfo .columnRight table{
     margin: 0 auto;
 }
-#topicQuestionsSummary,
-#difficultyQuestionsSummary{
-    text-align      :   center;
-    font-weight     :   bold;
-    font-size       :   12px;
-    font-style      :   italic;
-    color           :   white;
-    padding         :   3px;
-    width           :   88%;
-    position        :   absolute;
-    bottom          :   10px;
-}
-#topicQuestionsSummary {
-    width           :   92%;
-}
-#topicsTable th{
+#testSettingsInfo .columnRight table input{
     text-align: center;
+    width: 25px;
 }
-#topicsTable td.settingsTopicCheckbox,
-#topicsTable td.settingsTopicQuestions,
-#topicsTable td.settingsTopicQuestionsMandatory,
-#difficultyTable td.settingsDifficultyQuestions,
-#difficultyTable td.settingsDifficultyQuestionsMandatory{
-    text-align: center;
+#testSettingsInfo .columnRight table td#questionsTot{
+    border-right-color: transparent;
 }
-#testSettingsInfo td.settingsTopicName,
-#testSettingsInfo .settingsQuestions,
-#testSettingsInfo .settingsDifficultyLabel{
-    font-weight			        :   bold;
-    text-align                  :   right;
-    font-size                   :   12px;
+#testSettingsInfo .columnRight table thead td,
+#testSettingsInfo .columnRight table tfoot td {
+    font-size: 12px;
+    padding: 3px 3px 3px 3px;
+    text-align: center  ;
 }
-.questionsTopic{
-    text-align 	: right;
+#testSettingsInfo .columnRight .dataTables_scrollHead th,
+#testSettingsInfo .columnRight .dataTables_scrollFoot td{
+    border-top: 1px solid #686868;
+    border-bottom: 1px solid #686868;
 }
-
+#testSettingsInfo .columnRight table .questionsTot{
+    font-size: 14px;
+    font-weight: bold;
+}
+#testSettingsQuestion {
+    padding: 10px;
+}
 /*******************************************************************
 ********************************************************************
 ***                                                              ***
@@ -1716,8 +1704,6 @@ span.manageButton {
 }
 .rooms {
     float: left;
-    /*background-color: #ffffff;*/
-    /*border: 2px solid #ccc;*/
     width: 100%;
     height: 145px;
     overflow-y: scroll;
