@@ -672,7 +672,6 @@ class ExamController extends Controller{
 
             $db = new sqlDB();
             if(($db->qTestDetails(null, $_POST['idTest']) && ($testInfo = $db->nextRowAssoc()))){
-                $log->append(var_export($testInfo, true));
                 $allowNegative = ($testInfo['negative'] == 0)? false : true;
                 if($db->qArchiveTest($_POST['idTest'], json_decode(stripslashes($_POST['correctScores']), true),
                                      $_POST['scoreTest'], $_POST['bonus'], $_POST['scoreFinal'], $testInfo['scale'], $allowNegative)){
