@@ -339,6 +339,7 @@ define('ttTopic' , "Argomento");
 define('ttTopics' , "Argomenti");
 define('ttTopicsAndQuestions' , "Argomenti e Domande");
 define('ttTopicsQuestions' , "Domande per argomenti");
+define('ttTotals' , "Totali");
 define('ttTranslations' , "Traduzioni");
 define('ttTrue' , "Vero");
 define('ttType' , "Tipo");

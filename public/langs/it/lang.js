@@ -339,6 +339,7 @@ var ttTopic = "Argomento";
 var ttTopics = "Argomenti";
 var ttTopicsAndQuestions = "Argomenti e Domande";
 var ttTopicsQuestions = "Domande per argomenti";
+var ttTotals = "Totali";
 var ttTranslations = "Traduzioni";
 var ttTrue = "Vero";
 var ttType = "Tipo";

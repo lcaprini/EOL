@@ -8,6 +8,7 @@
 
 /*
  * questionsDistribution[idTopic][idDifficulty] = [#random , #mandatory]
+ * Defined and initialized in php view
  */
 
 $(function(){
@@ -47,10 +48,10 @@ $(function(){
                                                         sDom:           "t",
                                                         columns : [
                                                             { className: "dTopic"},
-                                                            { className: "dEasy", width : "13%" },
-                                                            { className: "dMedium", width : "13%" },
-                                                            { className: "dHard", width : "13%" },
-                                                            { className: "dTot", width : "14%" }
+                                                            { className: "dEasy"},
+                                                            { className: "dMedium"},
+                                                            { className: "dHard"},
+                                                            { className: "dTot"}
                                                         ]})
 });
 
@@ -95,6 +96,7 @@ function updateQuestionsSummaries(){
             difficultiesMandatory[difficultyID] += parseInt(questions[1]);
             topicRandomTemp += parseInt(questions[0]);
             topicMandatoryTemp += parseInt(questions[1]);
+
             if(questions[1] > 0)
                 $("td.topic"+topicID+".difficulty"+difficultyID+" .questionsMandatory").text("+"+questions[1]);
             else
@@ -104,6 +106,9 @@ function updateQuestionsSummaries(){
         if(topicMandatoryTemp > 0){
             $("#qTopic"+topicID+"_tot .questionsRandomTot").text(topicRandomTemp);
             $("#qTopic"+topicID+"_tot .questionsMandatoryTot").text("+"+topicMandatoryTemp+"=");
+        }else{
+            $("#qTopic"+topicID+"_tot .questionsRandomTot").text("");
+            $("#qTopic"+topicID+"_tot .questionsMandatoryTot").text("");
         }
         $("#qTopic"+topicID+"_tot .questionsTot").text(topicRandomTemp+topicMandatoryTemp);
     });
@@ -118,6 +123,9 @@ function updateQuestionsSummaries(){
         if(difficultiesMandatory[difficultyID] > 0){
             $("#qDifficulty"+difficultyID+"_tot .questionsRandomTot").text(difficultiesRandom[difficultyID]);
             $("#qDifficulty"+difficultyID+"_tot .questionsMandatoryTot").text("+"+difficultiesMandatory[difficultyID]+"=");
+        }else{
+            $("#qDifficulty"+difficultyID+"_tot .questionsRandomTot").text("");
+            $("#qDifficulty"+difficultyID+"_tot .questionsMandatoryTot").text("");
         }
         $("#qDifficulty"+difficultyID+"_tot .questionsTot").text(difficultiesRandom[difficultyID]+difficultiesMandatory[difficultyID]);
     }
@@ -125,7 +133,27 @@ function updateQuestionsSummaries(){
     if(mandatoryTot > 0){
         $("#questionsTot .questionsRandomTot").text(randomTot);
         $("#questionsTot .questionsMandatoryTot").text("+"+mandatoryTot+"=");
+    }else{
+        $("#questionsTot .questionsRandomTot").text("");
+        $("#questionsTot .questionsMandatoryTot").text("");
     }
     $("#questionsTot .questionsTot").text(randomTot+mandatoryTot);
 
+}
+
+/**
+ *  @name   changeTopicQuestions
+ *  @descr  Calculates new questions summaries for topics and difficulties sections and updates summary boxes and question field
+ *  @param  topicID         Integer       Question's topic ID
+ *  @param  difficultyID    Integer       Question's difficulty ID
+ */
+function changeTopicQuestions(topicID, difficultyID){
+  console.info("changeTopicQuestions", {topic : topicID, difficulty : difficultyID});
+
+  var newValue = $("#r-"+topicID+"-"+difficultyID).val();
+  if(newValue == "" || isNaN(newValue)){
+    newValue = 0;
+  }
+  questionsDistribution[topicID][difficultyID][0] = newValue;
+  updateQuestionsSummaries();
 }
