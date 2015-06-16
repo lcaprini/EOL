@@ -217,7 +217,7 @@ if(($_POST['action'] == 'show') && ($db->qMandatoryQuestions($_POST['idTestSetti
                     foreach(range(1, 3) as $indexDifficulty){
                     ?>
                         <td class="topic<?= $topic['idTopic'] ?> difficulty<?= $indexDifficulty ?>">
-                            <input id="r-<?= $topic['idTopic'] ?>-<?= $indexDifficulty ?>" class="questionsRandom <?= $editClass ?> numeric" min="0"
+                            <input type="number" id="r-<?= $topic['idTopic'] ?>-<?= $indexDifficulty ?>" class="questionsRandom <?= $editClass ?> numeric" min="0"
                                    value="<?= $questionsDistribution[$topic['idTopic']][$indexDifficulty][0] ?>"
                                    onchange="changeTopicQuestions(<?= $topic['idTopic'] ?>, <?= $indexDifficulty ?>);"
                                    onkeyup="changeTopicQuestions(<?= $topic['idTopic'] ?>, <?= $indexDifficulty ?>);">

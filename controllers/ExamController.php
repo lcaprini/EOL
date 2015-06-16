@@ -374,9 +374,9 @@ class ExamController extends Controller{
 
         if((isset($_POST['idTestSetting'])) && (isset($_POST['name'])) && (isset($_POST['scoreType'])) &&
             (isset($_POST['scoreMin'])) && (isset($_POST['bonus'])) && (isset($_POST['duration'])) &&
-            (isset($_POST['negative'])) &&(isset($_POST['editable'])) &&
-            (isset($_POST['questions'])) && (isset($_POST['desc'])) && (isset($_POST['questionsT'])) &&
-            (isset($_POST['questionsD'])) && (isset($_POST['questionsM'])) && (isset($_POST['completeUpdate']))){
+            (isset($_POST['negative'])) &&(isset($_POST['editable'])) && (isset($_POST['desc'])) &&
+            (isset($_POST['questions'])) && (isset($_POST['questionsM'])) && (isset($_POST['completeUpdate'])) &&
+            (isset($_POST['questionDistribution'])) && (isset($_POST['questionsTotalsPerTopic'])) && (isset($_POST['questionsTotalsPerDifficulty']))){
 
             $db = new sqlDB();
             if($_POST['completeUpdate'] == 'true'){
@@ -385,18 +385,19 @@ class ExamController extends Controller{
                         die('ACK'.$ajaxSeparator.ttEExamsNotArchivedEditTestSettings);
                     else{
                         $totQuestions = $_POST['questions'];
-                        $questionsT = json_decode($_POST['questionsT'], true);
-                        $questionsD = json_decode($_POST['questionsD'], true);
+
                         $questionsM = explode('&', $_POST['questionsM']);
 
-                        $distributionMatrix = $this->calcQuestionsDistribution($questionsT, $questionsD, $totQuestions);
+                        $questionDistribution = json_decode($_POST['questionDistribution'], true);
+                        $questionsTotalsPerTopic = json_decode($_POST['questionsTotalsPerTopic'], true);
+                        $questionsTotalsPerDifficulty = json_decode($_POST['questionsTotalsPerDifficulty'], true);
 
                         $db = new sqlDB();
                         if($db->qUpdateTestSettingsInfo($_POST['idTestSetting'], $_POST['completeUpdate'],
                                                         $_POST['name'], $_POST['desc'], $_POST['scoreType'], $_POST['scoreMin'],
                                                         $_POST['bonus'], $_POST['negative'], $_POST['editable'],
                                                         $_POST['duration'], $_POST['questions'],
-                                                        $distributionMatrix, $questionsT, $questionsD, $questionsM)){
+                                                        $questionDistribution, $questionsTotalsPerTopic, $questionsTotalsPerDifficulty, $questionsM)){
                             echo 'ACK'.$ajaxSeparator.'ACK';
                         }else{
                             echo $db->getError();

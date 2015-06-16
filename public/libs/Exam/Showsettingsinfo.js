@@ -148,12 +148,12 @@ function updateQuestionsSummaries(){
  *  @param  difficultyID    Integer       Question's difficulty ID
  */
 function changeTopicQuestions(topicID, difficultyID){
-  console.info("changeTopicQuestions", {topic : topicID, difficulty : difficultyID});
 
   var newValue = $("#r-"+topicID+"-"+difficultyID).val();
   if(newValue == "" || isNaN(newValue)){
     newValue = 0;
   }
+
   questionsDistribution[topicID][difficultyID][0] = newValue;
   updateQuestionsSummaries();
 }

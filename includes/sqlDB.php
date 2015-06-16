@@ -1665,7 +1665,7 @@ class sqlDB {
      */
     public function qUpdateTestSettingsInfo($idTestSetting, $completeUpdate, $name, $desc, $scoreType=null, $scoreMin=null,
                                             $bonus=null, $negative=null, $editable=null, $duration=null, $questions=null,
-                                            $distributionMatrix=null, $questionsT=null, $questionsD=null, $questionsM=null){
+                                            $questionDistribution=null, $questionsTotalsPerTopic=null, $questionsTotalsPerDifficulty=null, $questionsM=null){
         global $log;
         $ack = true;
         $this->result = null;
@@ -1696,9 +1696,9 @@ class sqlDB {
                               duration = '$duration',
                               negative = '$negative',
                               editable = '$editable',
-                              numEasy = '".$questionsD[1]['total']."',
-                              numMedium = '".$questionsD[2]['total']."',
-                              numHard = '".$questionsD[3]['total']."'
+                              numEasy = '".$questionsTotalsPerDifficulty[1]."',
+                              numMedium = '".$questionsTotalsPerDifficulty[2]."',
+                              numHard = '".$questionsTotalsPerDifficulty[3]."'
                           WHERE
                               idTestSetting = '$idTestSetting'";
                 array_push($queries, $query);
@@ -1719,18 +1719,18 @@ class sqlDB {
                           WHERE
                               fkTestSetting = '$idTestSetting'";
                 array_push($queries, $query);
-                foreach($questionsT as $topicID => $arrayQuestionT){
+                foreach($questionDistribution as $topicID => $arrayQuestionT){
                     if($arrayQuestionT != null){
-                        $numEasy = $distributionMatrix[1][$topicID];
-                        $numMedium = $distributionMatrix[2][$topicID];
-                        $numHard = $distributionMatrix[3][$topicID];
-                        $numQuestions = $arrayQuestionT['total'];
+                        $numEasy = $arrayQuestionT[1][0];
+                        $numMedium = $arrayQuestionT[2][0];
+                        $numHard = $arrayQuestionT[3][0];
+                        $numQuestions = $questionsTotalsPerTopic[$topicID];
                         $query = "INSERT INTO Topics_TestSettings (fkTestSetting, fkTopic, numEasy, numMedium, numHard, numQuestions)
-                              VALUES('$idTestSetting', '$topicID', '$numEasy', '$numMedium', '$numHard', '$numQuestions')";
+                                  VALUES('$idTestSetting', '$topicID', '$numEasy', '$numMedium', '$numHard', '$numQuestions')";
                         array_push($queries, $query);
                     }
                 }
-//                $log->append(var_export($queries, true));
+                //$log->append(var_export($queries, true));
                 $this->execTransaction($queries);
             }
 
@@ -2944,6 +2944,7 @@ class sqlDB {
             while(count($queries) > 0){
                 $query = array_shift($queries);
 //                $log->append($query);
+//                echo $query;
                 $this->execQuery($query);           // Execute queries one by one as long as there isn't error
             }
             $this->mysqli->commit();

@@ -187,53 +187,54 @@ function saveSettingsInfo(completeUpdate){
 
     if(($(".overlimit").length > 0) || ($("#settingsName").isEmpty()) ||
        ($("#settingsScoreMin").isEmpty()) || (isNaN($("#settingsScoreMin").val())) ||
-       ($("#settingsBonus").isEmpty()) || (isNaN($("#settingsBonus").val())) ||
-       ($("#settingsQuestions").isEmpty()) || ($("#settingsQuestions").val() == "xXx")){
+       ($("#settingsBonus").isEmpty()) || (isNaN($("#settingsBonus").val()))){
         showErrorMessage(ttEIncorrectField);
     }else{
-        var questionsT = new Array();
-        var questionsD = new Array();
+        var questionsTotalsPerTopic = {};
+        var questionsTotalsPerDifficulty = {};
         var questionsM = "";
+        var questionsTotal = 0;
+
         if(completeUpdate){
-            var random, mandatory, total = 0;
-            for(var index = 1; index <= maxDifficulty; index++){
-                random = parseInt($("#settingsD"+index).val());
-                mandatory = parseInt($("#settingsD"+index+"Mandatory").text());
-                total = random + mandatory;
-                questionsD[index] = { random : random,
-                                      mandatory : mandatory,
-                                      total : total}; }
-            $(".settingsTopic").each(function(){
-                random = parseInt($(this).find(".settingsTopicQuestions input").val());
-                mandatory = parseInt($(this).find(".settingsTopicQuestionsMandatory span").text());
-                total = random + mandatory;
-                questionsT[$(this).attr("value")] = { random : random,
-                                                      mandatory : mandatory,
-                                                      total : total };
+            $.each(questionsDistribution, function(topicID, distribution){
+                $.each(distribution, function(difficultyID, questions){
+                    if(questionsTotalsPerDifficulty[difficultyID])
+                        questionsTotalsPerDifficulty[difficultyID] += (parseInt(questions[0]) + parseInt(questions[1]));
+                    else
+                        questionsTotalsPerDifficulty[difficultyID] = (parseInt(questions[0]) + parseInt(questions[1]));
+                    if(questionsTotalsPerTopic[topicID])
+                        questionsTotalsPerTopic[topicID] += (parseInt(questions[0]) + parseInt(questions[1]));
+                    else
+                        questionsTotalsPerTopic[topicID] = (parseInt(questions[0]) + parseInt(questions[1]))
+                    questionsTotal += (parseInt(questions[0]) + parseInt(questions[1]));
+                })
             });
+
             questionsM = questionsTable.$(".qCheckbox input").serialize().replace(/question=/g, "");
         }
         $.ajax({
             url     : "index.php?page=exam/updatesettingsinfo",
             type    : "post",
             data    : {
-                idTestSetting   :   $("#settingsList .selected").attr("value"),
-                name            :   $("#settingsName").val(),
-                scoreType       :   $("#settingsScoreType dt span.value").text(),
-                scoreMin        :   $("#settingsScoreMin").val(),
-                bonus           :   $("#settingsBonus").val(),
-                negative        :   $("#settingsNegative dt span.value").text(),
-                editable        :   $("#settingsEditable dt span.value").text(),
-                duration        :   (parseInt($("#settingsDurationH dt span.value").text()) * 60
-                                    + parseInt($("#settingsDurationM dt span.value").text())),
-                questions       :   $("#settingsQuestions").val(),
-                desc            :   $("#settingsDesc").val(),
-                questionsT      :   JSON.stringify(questionsT),
-                questionsD      :   JSON.stringify(questionsD),
-                questionsM	    :   questionsM,
-                completeUpdate  :   completeUpdate
+                idTestSetting                :   $("#settingsList .selected").attr("value"),
+                name                         :   $("#settingsName").val(),
+                scoreType                    :   $("#settingsScoreType dt span.value").text(),
+                scoreMin                     :   $("#settingsScoreMin").val(),
+                bonus                        :   $("#settingsBonus").val(),
+                negative                     :   $("#settingsNegative dt span.value").text(),
+                editable                     :   $("#settingsEditable dt span.value").text(),
+                duration                     :   (parseInt($("#settingsDurationH dt span.value").text()) * 60
+                                                 + parseInt($("#settingsDurationM dt span.value").text())),
+                desc                         :   $("#settingsDesc").val(),
+                questions                    :   questionsTotal,
+                questionsM	                 :   questionsM,
+                questionDistribution         :   JSON.stringify(questionsDistribution),
+                questionsTotalsPerTopic      :   JSON.stringify(questionsTotalsPerTopic),
+                questionsTotalsPerDifficulty :   JSON.stringify(questionsTotalsPerDifficulty),
+                completeUpdate               :   completeUpdate
             },
             success : function (data) {
+              console.log(data);
                 data = data.trim().split(ajaxSeparator);
                 if(data[0] == "ACK"){
 //                    alert(data);
