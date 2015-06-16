@@ -149,11 +149,15 @@ function updateQuestionsSummaries(){
  */
 function changeTopicQuestions(topicID, difficultyID){
 
-  var newValue = $("#r-"+topicID+"-"+difficultyID).val();
-  if(newValue == "" || isNaN(newValue)){
-    newValue = 0;
-  }
+    var newValue = $("#r-"+topicID+"-"+difficultyID).val();
+    if(newValue == "" || isNaN(newValue)){
+        newValue = 0;
+    }
+    if(newValue < 0){
+        newValue = 0;
+        $("#r-"+topicID+"-"+difficultyID).val(0)
+    }
 
-  questionsDistribution[topicID][difficultyID][0] = newValue;
-  updateQuestionsSummaries();
+    questionsDistribution[topicID][difficultyID][0] = newValue;
+    updateQuestionsSummaries();
 }
